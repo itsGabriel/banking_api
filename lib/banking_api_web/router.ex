@@ -9,6 +9,11 @@ defmodule BankingApiWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :auth do
+    plug BankingApi.Guardian.Pipeline
+    plug Guardian.Plug.EnsureAuthenticated, error_handler: BankingApi.Guardian.ErrorHandler
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -17,6 +22,19 @@ defmodule BankingApiWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+  end
+
+  scope "/api", BankingApiWeb do
+    pipe_through :api
+
+    post "/create", SessionController, :create
+    post "/login", SessionController, :login
+  end
+
+  scope "/api", BankingApiWeb do
+    pipe_through [:api, :auth]
+
+    get "/teste", SessionController, :me
   end
 
   # Other scopes may use custom stacks.

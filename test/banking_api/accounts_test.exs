@@ -1,7 +1,9 @@
 defmodule BankingApi.AccountsTest do
   use BankingApi.DataCase
+  alias Bcrypt
 
   alias BankingApi.Accounts
+
 
   describe "users" do
     alias BankingApi.Accounts.User
@@ -31,8 +33,8 @@ defmodule BankingApi.AccountsTest do
 
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
+      assert {:ok, user} == Bcrypt.check_pass(user, "some password", hash_key: :password)
       assert user.email == "some email"
-      assert user.password == "some password"
       assert user.username == "some username"
     end
 
@@ -43,8 +45,8 @@ defmodule BankingApi.AccountsTest do
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
       assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
+      assert {:ok, user} == Bcrypt.check_pass(user, "some updated password", hash_key: :password)
       assert user.email == "some updated email"
-      assert user.password == "some updated password"
       assert user.username == "some updated username"
     end
 

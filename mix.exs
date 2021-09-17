@@ -33,6 +33,8 @@ defmodule BankingApi.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:guardian, "~> 2.0"},
+      {:bcrypt_elixir, ">= 2.0.3"},
       {:phoenix, "~> 1.5.12"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.4"},
@@ -44,9 +46,7 @@ defmodule BankingApi.MixProject do
       {:telemetry_poller, "~> 0.4"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"},
-      {:guardian, "~> 2.0"},
-      {:argon2_elixir, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"}
     ]
   end
 

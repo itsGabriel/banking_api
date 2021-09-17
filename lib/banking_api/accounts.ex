@@ -2,7 +2,6 @@ defmodule BankingApi.Accounts do
   @moduledoc """
   The Accounts context.
   """
-
   import Ecto.Query, warn: false
   alias BankingApi.Repo
 
@@ -35,7 +34,11 @@ defmodule BankingApi.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user!(id) do
+    {:ok, Repo.get!(User, id)}
+  rescue
+    Ecto.NoResultsError -> {:error, :not_found}
+  end
 
   @doc """
   Creates a user.
@@ -100,5 +103,20 @@ defmodule BankingApi.Accounts do
   """
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
+  end
+
+  def auth_user(%{"email" => email, "password" => password}) do
+    case Repo.get_by(User, email: email) do
+      nil ->
+        Bcrypt.no_user_verify()
+        {:error, :invalid_credentials}
+
+      user ->
+        if Bcrypt.verify_pass(password, user.password) do
+          {:ok, user}
+        else
+          {:error, :invalid_credentials}
+        end
+    end
   end
 end
