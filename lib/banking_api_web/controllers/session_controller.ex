@@ -3,6 +3,7 @@ defmodule BankingApiWeb.SessionController do
 
   alias BankingApi.{Accounts, Accounts.User, Guardian}
 
+  action_fallback BankingApiWeb.FallbackController
   def create(conn, params) do
     with {:ok, %User{} = user} <- Accounts.create_user(params),
          {:ok, token, _} <- Guardian.encode_and_sign(user) do
