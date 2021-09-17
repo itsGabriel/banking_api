@@ -1,4 +1,4 @@
-defmodule BankingApiWeb.ChangeSetView do
+defmodule BankingApiWeb.ChangesetView do
   use BankingApiWeb, :view
 
   def translate_errors(changeset) do

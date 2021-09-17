@@ -15,7 +15,7 @@ defmodule BankingApiWeb.FallbackController do
   def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
     conn
     |> put_status(:bad_request)
-    |> put_view(BankingApiWeb.ChangeSetView)
+    |> put_view(BankingApiWeb.ChangesetView)
     |> render("error.json", changeset: changeset)
   end
 
