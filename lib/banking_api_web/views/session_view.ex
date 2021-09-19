@@ -1,6 +1,7 @@
 defmodule BankingApiWeb.SessionView do
   use BankingApiWeb, :view
   alias BankingApiWeb.SessionView
+  alias BankingApiWeb.UserView
 
   def render("login.json", %{token: token}) do
     %{data: render_one(token, SessionView, "token.json")}
@@ -18,16 +19,8 @@ defmodule BankingApiWeb.SessionView do
     %{
       id: session.user.id,
       name: session.user.username,
-      account: render_one(session.account, SessionView, "account.json"),
+      account: render_one(session.account, UserView, "account.json"),
       token: session.token
-    }
-  end
-
-  def render("account.json", %{session: account}) do
-    %{
-      id: account.id,
-      code: account.code,
-      balance: account.balance
     }
   end
 end

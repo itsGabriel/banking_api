@@ -38,6 +38,8 @@ defmodule BankingApiWeb.Router do
 
     post "/withdraw", TransactionController, :withdraw
     post "/transfer/:account_destination", TransactionController, :transfer
+
+    get "/my-accounts", UserController, :get_my_accounts
   end
 
   # Other scopes may use custom stacks.

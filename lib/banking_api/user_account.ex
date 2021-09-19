@@ -52,6 +52,11 @@ defmodule BankingApi.UserAccount do
     Ecto.NoResultsError -> {:error, "Account not found"}
   end
 
+  def get_accounts_by_user(user_id) do
+    {:ok,  Account |> where([a], a.user_id == ^user_id) |> Repo.all()}
+  rescue
+    Ecto.NoResultsError -> {:error, "Account not found"}
+  end
   @doc """
   Creates a account.
 
@@ -125,10 +130,8 @@ defmodule BankingApi.UserAccount do
     |> Multi.run(:user_origin, fn _repo, _changes ->
       UserAccount.get_account_by_user(user, params.account)
     end)
-    |> Multi.run(:withdraw, fn repo, %{user_origin: account} ->
-      account
-      |> Account.changeset(%{balance: account.balance - params.amount})
-      |> repo.update()
+    |> Multi.update(:withdraw, fn %{user_origin: account} ->
+      Account.changeset(account,%{balance: account.balance - params.amount})
     end)
     |> Multi.run(
       :transaction,
