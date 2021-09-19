@@ -207,4 +207,16 @@ defmodule BankingApi.UserAccount do
       account_destination_id: account_destination
     })
   end
+
+  def generate_account_code() do
+    code = Enum.random(1_000..999_999) |> to_string()
+
+    case UserAccount.get_account_code!(code) do
+      {:error, _msg} ->
+        code
+
+      {:ok, _account} ->
+        UserAccount.generate_account_code()
+    end
+  end
 end

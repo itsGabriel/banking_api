@@ -7,6 +7,7 @@ defmodule BankingApi.Accounts do
 
   alias BankingApi.Accounts.User
   alias BankingApi.UserAccount.Account
+  alias BankingApi.UserAccount
 
   alias Ecto.Multi
 
@@ -56,11 +57,12 @@ defmodule BankingApi.Accounts do
 
   """
   def create_user(attrs \\ %{}) do
+    code = UserAccount.generate_account_code()
     Multi.new()
     |> Multi.insert(:create_user, User.changeset(%User{}, attrs))
     |> Multi.run(:create_account, fn repo, %{create_user: user} ->
       %Account{}
-      |> Account.changeset(%{user_id: user.id, code: "667", balance: 1000 * 100})
+      |> Account.changeset(%{user_id: user.id, code: code, balance: 1000 * 100})
       |> repo.insert()
     end)
     |> Multi.run(:preload, fn repo, %{create_user: user} ->
@@ -121,6 +123,9 @@ defmodule BankingApi.Accounts do
     User.changeset(user, attrs)
   end
 
+  @spec auth_user(map) ::
+          {:error, :invalid_credentials}
+          | {:ok, atom | %{:password => binary, optional(any) => any}}
   def auth_user(%{"email" => email, "password" => password}) do
     case Repo.get_by(User, email: email) do
       nil ->
