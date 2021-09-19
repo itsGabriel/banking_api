@@ -10,7 +10,7 @@ defmodule BankingApiWeb.SessionController do
          {:ok, token, _} <- Guardian.encode_and_sign(user) do
       conn
       |> put_status(:ok)
-      |> json(%{data: %{token: token, account: account.balance}})
+      |> render("sign_up.json", %{session: %{token: token, user: user, account: account}})
     end
   end
 
