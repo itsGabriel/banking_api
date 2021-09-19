@@ -6,6 +6,9 @@ defmodule BankingApi.Accounts do
   alias BankingApi.Repo
 
   alias BankingApi.Accounts.User
+  alias BankingApi.UserAccount.Account
+
+  alias Ecto.Multi
 
   @doc """
   Returns the list of users.
@@ -37,7 +40,7 @@ defmodule BankingApi.Accounts do
   def get_user!(id) do
     {:ok, Repo.get!(User, id)}
   rescue
-    Ecto.NoResultsError -> {:error, :not_found}
+    Ecto.NoResultsError -> {:error, "Account not found"}
   end
 
   @doc """
@@ -53,9 +56,22 @@ defmodule BankingApi.Accounts do
 
   """
   def create_user(attrs \\ %{}) do
-    %User{}
-    |> User.changeset(attrs)
-    |> Repo.insert()
+    Multi.new()
+    |> Multi.insert(:create_user, User.changeset(%User{}, attrs))
+    |> Multi.run(:create_account, fn repo, %{create_user: user} ->
+      %Account{}
+      |> Account.changeset(%{user_id: user.id, code: "667", balance: 1000 * 100})
+      |> repo.insert()
+    end)
+    |> Multi.run(:preload, fn repo, %{create_user: user} ->
+      {:ok, repo.preload(user, :accounts)}
+    end)
+    |> BankingApi.Repo.transaction()
+    |> case do
+      {:ok, %{create_user: user, create_account: account}} -> {:ok, user, account}
+      {:error, changeset} -> {:error, changeset}
+      {:error, _name, changeset, _value} -> {:error, changeset}
+    end
   end
 
   @doc """
