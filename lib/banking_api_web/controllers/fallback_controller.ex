@@ -12,6 +12,13 @@ defmodule BankingApiWeb.FallbackController do
     |> render("error.json", changeset: changeset)
   end
 
+  def call(conn, %Ecto.Changeset{} = changeset) do
+    conn
+    |> put_status(:bad_request)
+    |> put_view(BankingApiWeb.ChangesetView)
+    |> render("error.json", changeset: changeset)
+  end
+
   def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
     conn
     |> put_status(:bad_request)
@@ -25,5 +32,12 @@ defmodule BankingApiWeb.FallbackController do
     |> put_status(:not_found)
     |> put_view(BankingApiWeb.ErrorView)
     |> render(:"404")
+  end
+
+  def call(conn, {:error, message}) do
+    conn
+    |> put_status(400)
+    |> put_view(BankingApiWeb.ErrorView)
+    |> render("error.json", message: message)
   end
 end
