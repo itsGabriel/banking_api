@@ -15,7 +15,7 @@ defmodule BankingApiWeb.TransactionController do
          {:ok, account} <- UserAccount.withdraw(user.id, changeset) do
       conn
       |> put_status(:ok)
-      |> json(%{data: %{total: account.balance}})
+      |> render("withdraw.json", %{account: account})
     end
   end
 
@@ -25,7 +25,7 @@ defmodule BankingApiWeb.TransactionController do
          {:ok, account} <- UserAccount.transfer(user.id, changeset) do
       conn
       |> put_status(:ok)
-      |> json(%{data: %{total: account.balance}})
+      |> render("transfer.json", %{account: account})
     end
   end
 end
