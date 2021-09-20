@@ -1,62 +1,77 @@
 defmodule BankingApi.AccountTransactionTest do
   use BankingApi.DataCase
 
-  alias BankingApi.AccountTransaction
+  alias BankingApi.Accounts.User
+  alias BankingApi.Accounts
+  alias BankingApi.UserAccount
+  alias BankingApi.UserAccount.{Account, Withdraw, Transfer}
 
   describe "transactions" do
-    alias BankingApi.AccountTransaction.Transaction
+    @usr_attrs %{email: "testmail.com", password: "some password", username: "some username"}
+    @usr2_attrs %{email: "testmail2.com", password: "some password", username: "some username"}
 
-    @valid_attrs %{}
-    @update_attrs %{}
-    @invalid_attrs %{}
+    setup do
+      {:ok, %User{} = user1, %Account{} = account1} = Accounts.create_user(@usr_attrs)
 
-    def transaction_fixture(attrs \\ %{}) do
-      {:ok, transaction} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> AccountTransaction.create_transaction()
+      {:ok, %User{} = user2, %Account{} = account2} = Accounts.create_user(@usr2_attrs)
 
-      transaction
+      {:ok,
+       accounts: %{account1: account1.code, account2: account2.code},
+       users: %{user1: user1.id, user2: user2.id}}
     end
 
-    test "list_transactions/0 returns all transactions" do
-      transaction = transaction_fixture()
-      assert AccountTransaction.list_transactions() == [transaction]
+    test "user withdraw with valid data", state do
+      %{user1: user1} = state[:users]
+      %{account1: account1} = state[:accounts]
+
+      data = %{account: account1, amount: 1000}
+
+      changeset = Withdraw.changeset(%Withdraw{}, data)
+
+      assert {:ok, %Account{}} = UserAccount.withdraw(user1, changeset)
     end
 
-    test "get_transaction!/1 returns the transaction with given id" do
-      transaction = transaction_fixture()
-      assert AccountTransaction.get_transaction!(transaction.id) == transaction
+    test "user withdraw with invalid balance returns error changeset", state do
+      %{user1: user1} = state[:users]
+      %{account1: account1} = state[:accounts]
+
+      data = %{account: account1, amount: 100_000_000}
+
+      changeset = Withdraw.changeset(%Withdraw{}, data)
+
+      assert {:error, %Ecto.Changeset{}} = UserAccount.withdraw(user1, changeset)
     end
 
-    test "create_transaction/1 with valid data creates a transaction" do
-      assert {:ok, %Transaction{} = transaction} = AccountTransaction.create_transaction(@valid_attrs)
+    test "user transfer balance to valid account code", state do
+      %{user1: user1} = state[:users]
+      %{account1: account1, account2: account2} = state[:accounts]
+
+      data = %{account_origin: account1, account_destination: account2, amount: 2000}
+
+      changeset = Transfer.changeset(%Transfer{}, data)
+
+      assert {:ok, %Account{}} = UserAccount.transfer(user1, changeset)
     end
 
-    test "create_transaction/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = AccountTransaction.create_transaction(@invalid_attrs)
+    test "user transfer balance with the same account code return error", state do
+      %{user1: user1} = state[:users]
+      %{account1: account1} = state[:accounts]
+      data = %{account_origin: account1, account_destination: account1, amount: 2000}
+
+      changeset = Transfer.changeset(%Transfer{}, data)
+
+      assert {:error, msg} = UserAccount.transfer(user1, changeset)
     end
 
-    test "update_transaction/2 with valid data updates the transaction" do
-      transaction = transaction_fixture()
-      assert {:ok, %Transaction{} = transaction} = AccountTransaction.update_transaction(transaction, @update_attrs)
-    end
+    test "user transfer invadili balance returns error changeset", state do
+      %{user1: user1} = state[:users]
+      %{account1: account1, account2: account2} = state[:accounts]
 
-    test "update_transaction/2 with invalid data returns error changeset" do
-      transaction = transaction_fixture()
-      assert {:error, %Ecto.Changeset{}} = AccountTransaction.update_transaction(transaction, @invalid_attrs)
-      assert transaction == AccountTransaction.get_transaction!(transaction.id)
-    end
+      data = %{account_origin: account1, account_destination: account2, amount: 100_000_000}
 
-    test "delete_transaction/1 deletes the transaction" do
-      transaction = transaction_fixture()
-      assert {:ok, %Transaction{}} = AccountTransaction.delete_transaction(transaction)
-      assert_raise Ecto.NoResultsError, fn -> AccountTransaction.get_transaction!(transaction.id) end
-    end
+      changeset = Transfer.changeset(%Transfer{}, data)
 
-    test "change_transaction/1 returns a transaction changeset" do
-      transaction = transaction_fixture()
-      assert %Ecto.Changeset{} = AccountTransaction.change_transaction(transaction)
+      assert {:error, %Ecto.Changeset{}} = UserAccount.transfer(user1, changeset)
     end
   end
 end
