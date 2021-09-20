@@ -3,10 +3,9 @@ defmodule BankingApi.UserAccountTest do
 
   alias BankingApi.UserAccount
   alias BankingApi.Accounts.User
+  alias BankingApi.UserAccount.Account
 
   describe "accounts" do
-    alias BankingApi.UserAccount.Account
-
     @usr_attrs %{email: "testmail.com", password: "some password", username: "some username"}
     @invalid_attrs %{balance: nil, code: nil, user_id: nil}
 
@@ -28,7 +27,7 @@ defmodule BankingApi.UserAccountTest do
     test "create_account with invalid balance return error changeset", state do
       data = %{code: "2000", balance: -1, user_id: state[:user]}
 
-      assert {:error,  %Ecto.Changeset{}} = UserAccount.create_account(data)
+      assert {:error, %Ecto.Changeset{}} = UserAccount.create_account(data)
     end
   end
 end

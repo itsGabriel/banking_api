@@ -7,8 +7,6 @@ defmodule BankingApi.AccountsTest do
   alias BankingApi.UserAccount.Account
 
   describe "users" do
-    alias BankingApi.Accounts.User
-
     @valid_attrs %{email: "testmail.com", password: "some password", username: "some username"}
     @invalid_attrs %{email: nil, password: nil, username: nil}
 
