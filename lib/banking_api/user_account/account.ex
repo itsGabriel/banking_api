@@ -16,6 +16,6 @@ defmodule BankingApi.UserAccount.Account do
     account
     |> cast(attrs, [:code, :balance, :user_id])
     |> validate_required([:code, :balance])
-    |> validate_number(:balance, greater_than_or_equal_to: 0)
+    |> validate_number(:balance, greater_than_or_equal_to: 1, message: "Insufficient funds")
   end
 end

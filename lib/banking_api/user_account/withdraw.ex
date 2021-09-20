@@ -11,6 +11,6 @@ defmodule BankingApi.UserAccount.Withdraw do
     account
     |> cast(attrs, [:account, :amount])
     |> validate_required([:account, :amount])
-    |> validate_number(:amount, greater_than_or_equal_to: 0)
+    |> validate_number(:amount, greater_than_or_equal_to: 1)
   end
 end

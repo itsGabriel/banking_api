@@ -12,6 +12,6 @@ defmodule BankingApi.UserAccount.Transfer do
     account
     |> cast(attrs, [:account_origin, :account_destination, :amount])
     |> validate_required([:account_origin, :account_destination, :amount])
-    |> validate_number(:amount, greater_than_or_equal_to: 0)
+    |> validate_number(:amount, greater_than_or_equal_to: 1)
   end
 end
