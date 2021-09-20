@@ -17,7 +17,7 @@ defmodule BankingApi.UserAccountTest do
     test "create_account with valid data", state do
       data = %{code: "2000", balance: 10000, user_id: state[:user]}
 
-      assert {:ok, %Account{} = account} = UserAccount.create_account(data)
+      assert {:ok, %Account{} = _account} = UserAccount.create_account(data)
     end
 
     test "create_account with invalid data returns error changeset" do

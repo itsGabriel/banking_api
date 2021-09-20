@@ -11,7 +11,7 @@ defmodule BankingApi.AccountsTest do
     @invalid_attrs %{email: nil, password: nil, username: nil}
 
     test "create_user with valid data creates a user" do
-      assert {:ok, %User{} = user, %Account{} = account} = Accounts.create_user(@valid_attrs)
+      assert {:ok, %User{} = user, %Account{} = _account} = Accounts.create_user(@valid_attrs)
       assert {:ok, user} == Bcrypt.check_pass(user, "some password", hash_key: :password)
     end
 

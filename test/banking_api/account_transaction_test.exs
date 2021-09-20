@@ -6,20 +6,20 @@ defmodule BankingApi.AccountTransactionTest do
   alias BankingApi.UserAccount
   alias BankingApi.UserAccount.{Account, Withdraw, Transfer}
 
-  describe "transactions" do
-    @usr_attrs %{email: "testmail.com", password: "some password", username: "some username"}
-    @usr2_attrs %{email: "testmail2.com", password: "some password", username: "some username"}
+  @usr_attrs %{email: "testmail.com", password: "some password", username: "some username"}
+  @usr2_attrs %{email: "testmail2.com", password: "some password", username: "some username"}
 
-    setup do
-      {:ok, %User{} = user1, %Account{} = account1} = Accounts.create_user(@usr_attrs)
+  setup do
+    {:ok, %User{} = user1, %Account{} = account1} = Accounts.create_user(@usr_attrs)
 
-      {:ok, %User{} = user2, %Account{} = account2} = Accounts.create_user(@usr2_attrs)
+    {:ok, %User{} = user2, %Account{} = account2} = Accounts.create_user(@usr2_attrs)
 
-      {:ok,
-       accounts: %{account1: account1.code, account2: account2.code},
-       users: %{user1: user1.id, user2: user2.id}}
-    end
+    {:ok,
+     accounts: %{account1: account1.code, account2: account2.code},
+     users: %{user1: user1.id, user2: user2.id}}
+  end
 
+  describe "withdraw" do
     test "user withdraw with valid data", state do
       %{user1: user1} = state[:users]
       %{account1: account1} = state[:accounts]
@@ -41,7 +41,9 @@ defmodule BankingApi.AccountTransactionTest do
 
       assert {:error, %Ecto.Changeset{}} = UserAccount.withdraw(user1, changeset)
     end
+  end
 
+  describe "transfer" do
     test "user transfer balance to valid account code", state do
       %{user1: user1} = state[:users]
       %{account1: account1, account2: account2} = state[:accounts]
@@ -60,10 +62,10 @@ defmodule BankingApi.AccountTransactionTest do
 
       changeset = Transfer.changeset(%Transfer{}, data)
 
-      assert {:error, msg} = UserAccount.transfer(user1, changeset)
+      assert {:error, _msg} = UserAccount.transfer(user1, changeset)
     end
 
-    test "user transfer invadili balance returns error changeset", state do
+    test "user transfer invalid balance returns error changeset", state do
       %{user1: user1} = state[:users]
       %{account1: account1, account2: account2} = state[:accounts]
 
